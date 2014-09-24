@@ -1,0 +1,60 @@
+diff --git a/manifests/params.pp b/manifests/params.pp
+index 0e91e81..f1964d4 100644
+--- a/manifests/params.pp
++++ b/manifests/params.pp
+@@ -38,8 +38,8 @@
+             $provider = 'mysql'
+           }
+         }
+-        'RedHat': {
+-          if $::operatingsystemrelease >= 7 {
++        /^(RedHat|CentOS|Scientific)$/: {
++          if $::operatingsystemmajrelease >= 7 {
+             $provider = 'mariadb'
+           } else {
+             $provider = 'mysql'
+diff --git a/spec/classes/mysql_server_spec.rb b/spec/classes/mysql_server_spec.rb
+index e21f22c..3184f65 100644
+--- a/spec/classes/mysql_server_spec.rb
++++ b/spec/classes/mysql_server_spec.rb
+@@ -75,6 +75,40 @@
+     end
+   end
+ 
++  context 'mysql::server::install on RHEL 7' do
++    let :facts do
++      { :osfamily                  => 'RedHat',
++        :operatingsystem           => 'RedHat',
++        :operatingsystemmajrelease => 7
++      }
++    end
++
++    let(:params) {{ :package_ensure => 'present', :name => 'mariadb-server' }}
++    it do
++      should contain_package('mysql-server').with({
++      :ensure => :present,
++      :name   => 'mariadb-server',
++    })
++    end
++  end
++
++  context 'mysql::server::install on CentOS 7' do
++    let :facts do
++      { :osfamily                  => 'RedHat',
++        :operatingsystem           => 'CentOS',
++        :operatingsystemmajrelease => 7
++      }
++    end
++
++    let(:params) {{ :package_ensure => 'present', :name => 'mariadb-server' }}
++    it do
++      should contain_package('mysql-server').with({
++      :ensure => :present,
++      :name   => 'mariadb-server',
++    })
++    end
++  end
++
+   context 'mysql::server::config' do
+     it do
+       should contain_file('/etc/mysql').with({

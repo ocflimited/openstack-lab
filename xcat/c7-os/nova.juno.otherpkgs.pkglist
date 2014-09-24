@@ -1,0 +1,25 @@
+## PackStack/Puppet
+puppet/puppet
+
+## OpenStack Deps
+rdo-openstack-juno/openstack-utils
+rdo-openstack-juno/openstack-selinux
+
+## Nova
+rdo-openstack-juno/openstack-nova-compute
+
+## Neutron
+rdo-openstack-juno/openstack-neutron
+rdo-openstack-juno/openstack-neutron-openvswitch
+rdo-openstack-juno/openstack-neutron-ml2
+
+## Telemetry
+rdo-openstack-juno/openstack-ceilometer-compute
+
+## Nagios
+epel/nagios-plugins*
+epel/nrpe
+
+## Misc
+epel/scsi-target-utils
+extras/python-greenlet

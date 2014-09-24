@@ -1,0 +1,24 @@
+## PackStack/Puppet
+puppet/puppet
+
+## OpenStack Deps
+rdo-openstack/openstack-utils
+rdo-openstack/openstack-selinux
+
+## Nova
+rdo-openstack/openstack-nova-compute
+
+## Neutron
+rdo-openstack/openstack-neutron
+rdo-openstack/openstack-neutron-openvswitch
+rdo-openstack/openstack-neutron-ml2
+
+## Telemetry
+rdo-openstack/openstack-ceilometer-compute
+
+## Nagios
+epel/nagios-plugins*
+epel/nrpe
+
+## Misc
+epel/scsi-target-utils

@@ -1,0 +1,52 @@
+## PackStack/Puppet
+puppet
+openstack-packstack
+openstack-puppet-modules
+erlang
+
+## Pre-reqs
+mariadb-galera-server
+rabbitmq-server
+
+## OpenStack Deps
+openstack-utils
+openstack-selinux
+
+## Nova
+openstack-nova
+openstack-nova-novncproxy
+openstack-nova-console
+
+## Neutron
+openstack-neutron
+
+## Glance
+openstack-glance
+
+## KeyStone
+openstack-keystone
+
+## Swift
+openstack-swift
+openstack-swift-proxy
+openstack-swift-object
+openstack-swift-container
+openstack-swift-account
+
+## Dashboard
+openstack-dashboard
+
+## Telemetry
+mongodb-server
+openstack-ceilometer-*
+python-ceilometer
+python-ceilometerclient
+
+## Cinder
+openstack-cinder
+
+## Nagios
+nagios
+nagios-devel
+nagios-plugins*
+nrpe

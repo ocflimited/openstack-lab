@@ -1,0 +1,24 @@
+[puppet-7]
+name=Puppet EL 7
+baseurl=http://yum.puppetlabs.com/el/7/products/x86_64/
+enabled=1
+gpgcheck=0
+
+[puppet-6]
+name=Puppet EL 6
+baseurl=http://yum.puppetlabs.com/el/6/products/x86_64/
+enabled=1
+gpgcheck=0
+
+[puppet-deps-7]
+name=Puppet dependencies EL 7
+baseurl=http://yum.puppetlabs.com/el/7/dependencies/x86_64/
+enabled=1
+gpgcheck=0
+
+[puppet-deps-6]
+name=Puppet dependencies EL 6
+baseurl=http://yum.puppetlabs.com/el/6/dependencies/x86_64/
+enabled=1
+gpgcheck=0
+

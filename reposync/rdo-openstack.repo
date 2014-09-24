@@ -1,0 +1,17 @@
+[rdo-openstack-epel-7]
+name=RDO OpenStack for EL 7
+baseurl=https://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-7/
+enabled=1
+gpgcheck=0
+
+[rdo-openstack-epel-6]
+name=RDO OpenStack for EL 6
+baseurl=https://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6/
+enabled=1
+gpgcheck=0
+
+[rdo-openstack-juno-epel-7]
+name=RDO OpenStack Juno for EL 7
+baseurl=https://repos.fedorapeople.org/repos/openstack/openstack-juno/epel-7/
+enabled=1
+gpgcheck=0

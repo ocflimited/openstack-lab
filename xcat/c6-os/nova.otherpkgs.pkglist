@@ -1,0 +1,25 @@
+## OpenStack Deps
+rdo-openstack/openstack-utils
+rdo-openstack/openstack-selinux
+
+## Nova
+rdo-openstack/openstack-nova-compute
+
+## Neutron
+rdo-openstack/openstack-neutron
+
+## Telemetry
+rdo-openstack/openstack-ceilometer-compute
+
+## Nagios
+epel/nagios-plugins*
+epel/nrpe
+
+## Foreman
+foreman/foreman
+
+## Puppet
+puppet/puppet
+
+## Ruby
+ruby/ruby193-ruby

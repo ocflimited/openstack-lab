@@ -1,0 +1,16 @@
+#!/bin/sh
+
+mkdir -p /post
+mount $MASTER:$INSTALLDIR /post
+
+IMAGEDIR=/post/data/openstack/images
+
+. ~/keystonerc_admin
+
+glance image-create --name cento6.4-gold --is-public=True --disk-format=raw --container-format=bare --file $IMAGEDIR/centos6.4-x86_64-gold-master.img
+glance image-create --name cento6.4-min  --is-public=True --disk-format=qcow2 --container-format=bare --file $IMAGEDIR/CentOS-6.4-x86_64-Minimal-OpenStack.image.qcow2c
+glance image-create --name rhel7-beta    --is-public=True --disk-format=qcow2 --container-format=bare --file $IMAGEDIR/rhel-7-public-beta-x86_64-kvm.qcow2
+glance image-create --name centos7       --is-public=True --disk-format=qcow2 --container-format=bare --file $IMAGEDIR/CentOS-7-x86_64-GenericCloud.qcow2
+glance image-create --name ubuntu14.04   --is-public=True --disk-format=raw --container-format=bare --file $IMAGEDIR/ubuntu-14.04-server-cloudimg-amd64-disk1.img
+
+umount /post

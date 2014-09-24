@@ -1,0 +1,89 @@
+#!/bin/sh
+
+#set -ax
+
+PACKSTACKDIR=/xcatpost/ocf/data/packstack
+IMAGEDIR=/post/data/openstack/images
+ANSWERS_FILE=packstack-answers.txt
+
+export HOME=/root
+
+IP=$(nslookup $NODE-pub | grep Address: | tail -n 1 | awk '{print $2}')
+
+sed s/##OPENSTACK_MASTER##/$IP/g ${PACKSTACKDIR}/${ANSWERS_FILE} > /tmp/${ANSWERS_FILE}
+
+packstack --answer-file=/tmp/${ANSWERS_FILE}
+
+. /root/keystonerc_admin
+
+# Add the bridge networks
+ovs-vsctl add-br br-external
+ovs-vsctl add-port br-external enp2s1f1
+
+ovs-vsctl add-br br-internal
+ovs-vsctl add-port br-internal enp2s1f0
+
+# Remove the default networks
+neutron router-gateway-clear router1
+neutron subnet-delete public_subnet
+neutron net-delete public
+
+nova flavor-create m1.nano auto 128 1 1
+
+# Add the relevant networks on the cluster
+neutron net-create ext_net --router:external=True 
+neutron subnet-create --name ext_subnet --disable-dhcp ext_net 192.168.33.0/24 \
+    --gateway 192.168.33.254 --allocation-pool start=192.168.33.161,end=192.168.33.190
+
+neutron net-create int_net
+neutron subnet-create --name int_subnet --disable-dhcp int_net 10.0.0.0/23 \
+    --gateway 10.0.0.201 --allocation-pool start=10.0.0.161,end=10.0.0.190
+
+# Add the default cirros image from xCAT's local repo
+mkdir -p /post
+mount $MASTER:$INSTALLDIR /post
+glance image-create --name cirros --is-public=True --disk-format=raw --container-format=bare --file $IMAGEDIR/cirros-0.3.1-x86_64-disk.img
+umount /post
+
+# Create the temporary demo user
+keystone tenant-create --name demo
+keystone user-create --name demo --pass demo
+keystone user-role-add --user demo --role _member_ --tenant demo
+
+cat > /root/keystonerc_demo << EOF
+export OS_USERNAME=demo
+export OS_TENANT_NAME=demo
+export OS_PASSWORD=demo
+export OS_AUTH_URL=http://$IP:5000/v2.0/
+export PS1='[\u@\h \W(keystone_demo)]\$ '
+EOF
+
+. /root/keystonerc_demo
+
+# Create the ssh key, and add to OpenStack
+ssh-keygen -t rsa -b 4096 -N '' -f /root/id_rsa_demo
+nova keypair-add --pub-key /root/id_rsa_demo.pub demo
+
+# Remove the default networks if they have been created
+neutron router-interface-delete router1 private_subnet
+neutron subnet-delete private_subnet
+neutron net-delete private
+
+# Create the private network and router under the demo tenant
+neutron net-create stack_net_priv
+neutron subnet-create --name stack_subnet_priv --dns-nameserver 8.8.8.8 stack_net_priv 10.0.8.0/24
+
+neutron router-create extnet_stackrouter
+neutron router-gateway-set extnet_stackrouter ext_net
+neutron router-interface-add extnet_stackrouter stack_net_priv
+
+# Allow ssh and ping from the default security group
+neutron security-group-rule-create --protocol icmp default
+neutron security-group-rule-create --protocol tcp   --port-range-min 22 --port-range-max 22 default
+
+################################
+#
+## Create a new VM 
+#nova boot --poll --flavor m1.nano --image cirros   --nic net-id=d418cb0f-4ccb-4a1b-9fec-5fa23e20d9e7 --key-name demo test0
+#
+################################

@@ -1,0 +1,62 @@
+## PackStack/Puppet
+puppet/puppet
+rdo-openstack/openstack-packstack
+rdo-openstack/openstack-puppet-modules
+epel/erlang
+
+## Pre-reqs
+rdo-openstack/mariadb-galera-server
+rdo-openstack/rabbitmq-server
+
+## OpenStack Deps
+rdo-openstack/openstack-utils
+rdo-openstack/openstack-selinux
+
+## Nova
+rdo-openstack/openstack-nova
+rdo-openstack/openstack-nova-novncproxy
+rdo-openstack/openstack-nova-console
+
+## Neutron
+rdo-openstack/openstack-neutron
+rdo-openstack/openstack-neutron-ml2
+rdo-openstack/openstack-neutron-openvswitch
+rdo-openstack/openvswitch
+
+## Glance
+rdo-openstack/openstack-glance
+
+## KeyStone
+rdo-openstack/openstack-keystone
+
+## Swift
+rdo-openstack/openstack-swift
+rdo-openstack/openstack-swift-proxy
+rdo-openstack/openstack-swift-object
+rdo-openstack/openstack-swift-container
+rdo-openstack/openstack-swift-account
+
+## Dashboard
+rdo-openstack/openstack-dashboard
+
+## Telemetry
+rdo-openstack/mongodb-server
+rdo-openstack/openstack-ceilometer-*
+rdo-openstack/python-ceilometer
+rdo-openstack/python-ceilometerclient
+
+## Cinder
+rdo-openstack/openstack-cinder
+
+## Heat
+rdo-openstack/openstack-heat-api
+
+## Nagios
+epel/nagios
+epel/nagios-devel
+epel/nagios-plugins*
+epel/nrpe
+
+## Misc
+epel/scsi-target-utils
+extras/python-itsdangerous

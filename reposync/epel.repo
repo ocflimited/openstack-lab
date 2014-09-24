@@ -1,0 +1,12 @@
+[epel-7]
+name=EPEL 7
+baseurl=http://dl.fedoraproject.org/pub/epel/7/x86_64/
+enabled=1
+gpgcheck=0
+
+[epel-6]
+name=EPEL 6
+baseurl=http://dl.fedoraproject.org/pub/epel/6/x86_64/
+enabled=1
+gpgcheck=0
+

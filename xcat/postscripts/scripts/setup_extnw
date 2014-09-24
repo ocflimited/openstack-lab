@@ -1,0 +1,93 @@
+#!/bin/bash
+
+#################################################################################
+# Copyright Arif Ali - aali@ocf.co.uk, OCF Plc.                                 #
+# Copyright from 2014 to the legal extent of UK law.                            #
+# Distribution is only permitted with written consent from Arif Ali or OCF Plc. #
+#################################################################################
+#                                                                               #
+# Authors: Arif Ali - aali@ocf.co.uk, OCF plc                                   #
+#                                                                               #
+#################################################################################
+
+#
+# This script allows you add the an external gateway and dns for external network
+# access. This is useful for login nodes, or atleast external facing nodes
+# 
+# We just need to set the networkname as referenced in the networks table to use
+# in this script using the -s paramater
+#
+# The script will by default will only work with the login profile, you can change
+# that using the -p flag
+#
+# This is a Linux only script
+#
+
+#set -ax
+
+logger -t xcat "Install: $0 $*"
+
+usage() { echo "$0 -n <netname> [-i <installroot>]" 1>&2; exit 1; }
+
+while getopts i:n:? flag; do
+  case $flag in
+    i)
+      installroot=$OPTARG
+      ;;
+    n)
+      NETNAME=$OPTARG
+      ;;
+    ?)
+      usage
+      ;;
+  esac
+done
+
+[[ -z "$NETNAME" ]] && usage
+[[ -z "$installroot" ]] && installroot=/
+
+num_index=1
+found=0
+
+# go through all the networks defined, and check to see if it is in $NETNAME
+while [ $num_index -le $NETWORKS_LINES ]; do
+  eval str_temp=\$NETWORKS_LINE$num_index
+  str_temp_name=`echo $str_temp | awk -F'netname=' '{print $2}' | awk -F'|' '{print $1}'`
+  if [ "$str_temp_name" = "${NETNAME}" ];then
+      found=1
+      break
+  fi
+  num_index=$((num_index+1))
+done
+
+# If we don't find the defined network, then exit
+[ $found -eq 0 ] && exit 0
+
+# Do the gateway
+str_gateway=`echo $str_temp | awk -F'gateway=' '{print $2}' | awk -F'|' '{print $1}'`
+
+if [ $str_gateway != "" ]; then
+
+  sed -ibak -e '/GATEWAY/d' $installroot/etc/sysconfig/network
+  echo GATEWAY=$str_gateway >> $installroot/etc/sysconfig/network
+
+  ip route del default
+  ip route add default via $str_gateway
+
+fi
+
+# Do the nameservers
+str_nameservers=`echo $str_temp | awk -F'nameservers=' '{print $2}' | awk -F'|' '{print $1}'`
+
+if [[ $str_nameservers != "" ]]; then
+
+  for nameserver in `echo $str_nameservers | tr ',' ' '` ; do
+
+    if [[ ! `grep $nameserver $installroot/etc/resolv.conf` ]] ; then
+      echo "nameserver $nameserver" >> $installroot/etc/resolv.conf
+    fi
+
+    done
+
+fi
+
