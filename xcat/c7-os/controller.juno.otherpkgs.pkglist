@@ -1,5 +1,6 @@
 ## PackStack/Puppet
-puppet/puppet
+epel/puppet
+#puppet/puppet
 rdo-openstack-juno/openstack-packstack
 rdo-openstack-juno/openstack-puppet-modules
 epel/erlang

@@ -37,7 +37,7 @@ neutron subnet-create --name ext_subnet --disable-dhcp ext_net 192.168.33.0/24 \
 
 neutron net-create int_net
 neutron subnet-create --name int_subnet --disable-dhcp int_net 10.0.0.0/23 \
-    --gateway 10.0.0.201 --allocation-pool start=10.0.0.161,end=10.0.0.190
+    --gateway 10.0.0.251 --allocation-pool start=10.0.0.161,end=10.0.0.190
 
 # Add the default cirros image from xCAT's local repo
 mkdir -p /post
@@ -75,7 +75,7 @@ neutron subnet-create --name stack_subnet_priv --dns-nameserver 8.8.8.8 stack_ne
 
 neutron router-create extnet_stackrouter
 neutron router-gateway-set extnet_stackrouter ext_net
-neutron router-interface-add extnet_stackrouter stack_net_priv
+neutron router-interface-add extnet_stackrouter stack_subnet_priv
 
 # Allow ssh and ping from the default security group
 neutron security-group-rule-create --protocol icmp default
