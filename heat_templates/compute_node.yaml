@@ -28,9 +28,9 @@ parameters:
   master_node_ip:
     type: string
     description: IP address of the Master node.
-  #index_name:
-  #  type: string
-  #  description: IP address of the Master node.
+  index_name:
+    type: string
+    description: IP address of the Master node.
 
 resources:
 
@@ -57,7 +57,7 @@ resources:
   compute_node:
     type: OS::Nova::Server
     properties:
-      name: compute
+      name: {"Fn::Join" : ["",["compute", { get_param: index_name }]]}
       image: { get_param: image }
       flavor: { get_param: flavor }
       key_name: { get_param: key_name }
@@ -69,31 +69,26 @@ resources:
           template: |
             #!/bin/sh
 
-            cat > /etc/yum.repos.d/epel-7.repo << EOF
-            [epel-7]
-            name=epel-7
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/epel
-            enabled=1
-            gpgcheck=0
-            EOF
-
-            cat > /etc/yum.repos.d/rdo-openstack.repo << EOF
-            [rdo-openstack]
-            name=rdo-openstack
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/rdo-openstack
-            enabled=1
-            gpgcheck=0
-            EOF
+            set -ax
 
             yum -y remove NetworkManager
             chkconfig network on
 
-            yum -y install heat-cfntools
-
             myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
             myip_last_octet=${myip##*.}
 
-            cfn-signal -e0 --data 'OK' -r 'Setup complete' '$WAIT_HANDLE'
+            cat > /tmp/wait-data << EOF
+            {
+              "Status" : "SUCCESS",
+              "Reason" : "Setup Complete",
+              "UniqueId" : "None",
+              "Data" : "OK"
+            }
+            EOF
+            curl -T /tmp/wait-data '$WAIT_HANDLE'
+
+            echo $MASTER_NODE_IP
+
           params:
             "$MASTER_NODE_IP":
               get_param: master_node_ip

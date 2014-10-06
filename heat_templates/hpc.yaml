@@ -144,29 +144,24 @@ resources:
           template: |
             #!/bin/sh
 
+            set -ax
+
             yum -y upgrade
 
-            cat > /etc/yum.repos.d/epel-7.repo << EOF
-            [epel-7]
-            name=epel-7
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/epel
-            enabled=1
-            gpgcheck=0
+            cat > /tmp/wait-data << EOF
+            {
+              "Status" : "SUCCESS",
+              "Reason" : "Setup Complete",
+              "UniqueId" : "None",
+              "Data" : "OK"
+            }
             EOF
+            curl -T /tmp/wait-data '$WAIT_HANDLE'
 
-            cat > /etc/yum.repos.d/rdo-openstack.repo << EOF
-            [rdo-openstack]
-            name=rdo-openstack
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/rdo-openstack
-            enabled=1
-            gpgcheck=0
-            EOF
+            echo $COMP_NODE_ADDRESSES
 
-            yum -y install heat-cfntools
-
-            cfn-signal -e0 --data 'OK' -r 'Setup complete' '$WAIT_HANDLE'
           params:
-            #"$COMP_NODE_ADDRESSES": {"Fn::Join": [",", {get_attr: [compute_nodes, compute_node_ip]}]}
+            "$COMP_NODE_ADDRESSES": {"Fn::Join": [",", {get_attr: [compute_nodes, compute_node_ip]}]}
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
       networks:
@@ -204,7 +199,7 @@ resources:
       resource_def:
         type: compute_node.yaml
         properties:
-          #index_name: %index%
+          index_name: "%index%"
           key_name: {get_param: key_name}
           image: {get_param: image}
           flavor: {get_param: flavor}
