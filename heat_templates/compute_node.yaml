@@ -1,7 +1,7 @@
 heat_template_version: 2014-10-16
 
 description: >
-  HOT template to deploy one compute node into an xisting neutron tenant network and
+  HOT template to deploy one compute node into an existing neutron tenant network and
   assign floating IP address to the server so they are routable from the
   public network.
 
@@ -44,7 +44,7 @@ resources:
     properties:
       Handle:
         get_resource: node_wait_handle
-      Timeout: "300"
+      Timeout: "1200"
 
   secgroup_all_open:
     type: "OS::Neutron::SecurityGroup"

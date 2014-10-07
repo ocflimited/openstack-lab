@@ -1,9 +1,9 @@
 heat_template_version: 2014-10-16
 
 description: >
-  This template will boot a Kubernetes cluster with one or more
-  minions (as specified by the number_of_minions parameter, which
-  defaults to "2").
+  This template will boot a HPC cluster with one or more compute
+  nodes (as specified by the number_of_compute_nodes parameter, which
+  defaults to "10").
 
 parameters:
 
@@ -16,12 +16,6 @@ parameters:
   public_net_id:
     type: string
     description: uuid of a network to use for floating ip addresses
-  #private_net_id:
-  #  type: string
-  #  description: uuid of a network to use for floating ip addresses
-  #private_subnet_id:
-  #  type: string
-  #  description: uuid of a network to use for floating ip addresses
 
   #
   # OPTIONAL PARAMETERS
@@ -35,16 +29,19 @@ parameters:
     type: string
     default: m1.small
     description: flavor to use when booting the server
+    constraints:
+      - allowed_values: [m1.tiny, m1.small, m1.large]
+        description: Value must be one of 'm1.tiny', 'm1.small' or 'm1.large'
 
   dns_nameserver:
     type: string
-    description: address of a dns nameserver reachable in your environment
     default: 8.8.8.8
+    description: address of a dns nameserver reachable in your environment
 
   number_of_compute_nodes:
     type: string
-    description: how many compute nodes to spawn
     default: 10
+    description: how many compute nodes to spawn
 
 resources:
 
@@ -58,7 +55,7 @@ resources:
     properties:
       Handle:
         get_resource: master_wait_handle
-      Timeout: "300"
+      Timeout: "1200"
 
   ######################################################################
   #
@@ -123,7 +120,7 @@ resources:
 
   ######################################################################
   #
-  # databases server.  this sets up a MySQL server
+  # master_node server.  this sets up a Master Node
   #
   master_node:
     type: "OS::Nova::Server"
@@ -200,6 +197,10 @@ resources:
       port_id:
         get_resource: master_node_eth0
 
+  ######################################################################
+  #
+  # compute_node server.  this sets up the Compute Nodes
+  #
   compute_nodes:
     type: "OS::Heat::ResourceGroup"
     depends_on:
