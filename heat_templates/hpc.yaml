@@ -1,4 +1,4 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2014-10-16
 
 description: >
   This template will boot a Kubernetes cluster with one or more
@@ -16,12 +16,12 @@ parameters:
   public_net_id:
     type: string
     description: uuid of a network to use for floating ip addresses
-  private_net_id:
-    type: string
-    description: uuid of a network to use for floating ip addresses
-  private_subnet_id:
-    type: string
-    description: uuid of a network to use for floating ip addresses
+  #private_net_id:
+  #  type: string
+  #  description: uuid of a network to use for floating ip addresses
+  #private_subnet_id:
+  #  type: string
+  #  description: uuid of a network to use for floating ip addresses
 
   #
   # OPTIONAL PARAMETERS
@@ -67,35 +67,33 @@ resources:
   # resources (and have the deployer provide network and subnet ids,
   # etc, as parameters), but I wanted to minmize the amount of
   # configuration necessary to make this go.
-  #fixed_net:
-  #  type: "OS::Neutron::Net"
+  fixed_net:
+    type: "OS::Neutron::Net"
 
   # This is the subnet on which we will deploy our server.
-  #fixed_subnet:
-  #  type: "OS::Neutron::Subnet"
-  #  properties:
-  #    cidr: 10.0.9.0/24
-  #    network_id: { get_param: private_net_id }
-  #    dns_nameservers: { get_param: dns_nameserver }
+  fixed_subnet:
+    type: "OS::Neutron::Subnet"
+    properties:
+      cidr: 10.0.9.0/24
+      network_id: { get_resource: fixed_net }
+      dns_nameservers: [{ get_param: dns_nameserver }]
 
   # create a router attached to the external network provided as a
   # parameter to this stack.
-  #extrouter:
-  #  type: "OS::Neutron::Router"
-  #  properties:
-  #    external_gateway_info:
-  #      network:
-  #        get_param: public_net_id
+  extrouter:
+    type: "OS::Neutron::Router"
+    properties:
+      external_gateway_info:
+        network:
+          get_param: public_net_id
 
   # attached fixed_subnet to our extrouter router.
-  #extrouter_inside:
-  #  type: "OS::Neutron::RouterInterface"
-  #  properties:
-  #    router_id:
-  #      get_resource: extrouter
-  #    subnet_id:
-  #      get_param:
-  #        private_subnet_id
+  extrouter_inside:
+    type: "OS::Neutron::RouterInterface"
+    properties:
+      router_id:
+        get_resource: extrouter
+      subnet_id: { get_resource: fixed_subnet }
 
   ######################################################################
   #
@@ -129,9 +127,10 @@ resources:
   #
   master_node:
     type: "OS::Nova::Server"
-    #depends_on:
-    #  - extrouter_inside
+    depends_on:
+      - extrouter_inside
     properties:
+      name: master
       image:
         get_param: image
       flavor:
@@ -144,9 +143,23 @@ resources:
           template: |
             #!/bin/sh
 
-            set -ax
-
             yum -y upgrade
+
+            cat > /etc/yum.repos.d/slurm.repo << EOF
+            [slurm]
+            name=slurm
+            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/slurm
+            enabled=1
+            gpgcheck=0
+            EOF
+
+            yum -y install slurm slurm-slurmdbd slurm-munge
+
+            dd if=/dev/urandom bs=1 count=1024 /etc/munge.key
+            chmod 400 /etc/munge.key
+
+            service munge restart
+
 
             cat > /tmp/wait-data << EOF
             {
@@ -157,11 +170,8 @@ resources:
             }
             EOF
             curl -T /tmp/wait-data '$WAIT_HANDLE'
-
-            echo $COMP_NODE_ADDRESSES
-
           params:
-            "$COMP_NODE_ADDRESSES": {"Fn::Join": [",", {get_attr: [compute_nodes, compute_node_ip]}]}
+            "$COMP_NODE_ADDRESSES": {list_join: [",", {get_attr: [compute_nodes, compute_node_ip]}]}
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
       networks:
@@ -172,18 +182,18 @@ resources:
     type: "OS::Neutron::Port"
     properties:
       network_id:
-        get_param: private_net_id
+        get_resource: fixed_net
       security_groups:
         - get_resource: secgroup_base
         - get_resource: secgroup_compute
       fixed_ips:
         - subnet_id:
-            get_param: private_subnet_id
+            get_resource: fixed_subnet
 
   master_node_floating:
     type: "OS::Neutron::FloatingIP"
-    #depends_on:
-    #  - extrouter_inside
+    depends_on:
+      - extrouter_inside
     properties:
       floating_network_id:
         get_param: public_net_id
@@ -192,8 +202,8 @@ resources:
 
   compute_nodes:
     type: "OS::Heat::ResourceGroup"
-    #depends_on:
-    #  - extrouter_inside
+    depends_on:
+      - extrouter_inside
     properties:
       count: {get_param: number_of_compute_nodes}
       resource_def:
@@ -203,8 +213,8 @@ resources:
           key_name: {get_param: key_name}
           image: {get_param: image}
           flavor: {get_param: flavor}
-          private_net_id: {get_param: private_net_id}
-          private_subnet_id: {get_param: private_subnet_id}
+          private_net_id: {get_resource: fixed_net}
+          private_subnet_id: {get_resource: fixed_subnet}
           public_net_id: {get_param: public_net_id}
           master_node_ip: {get_attr: [master_node_eth0, fixed_ips, 0, ip_address]}
 

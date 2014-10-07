@@ -1,4 +1,4 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2014-10-16
 
 description: >
   HOT template to deploy one compute node into an xisting neutron tenant network and
@@ -57,7 +57,7 @@ resources:
   compute_node:
     type: OS::Nova::Server
     properties:
-      name: {"Fn::Join" : ["",["compute", { get_param: index_name }]]}
+      name: { list_join : ["",["compute", { get_param: index_name }]] }
       image: { get_param: image }
       flavor: { get_param: flavor }
       key_name: { get_param: key_name }
@@ -69,10 +69,21 @@ resources:
           template: |
             #!/bin/sh
 
-            set -ax
-
             yum -y remove NetworkManager
             chkconfig network on
+
+            cat > /etc/yum.repos.d/slurm.repo << EOF
+            [slurm]
+            name=slurm
+            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/slurm
+            enabled=1
+            gpgcheck=0
+            EOF
+
+            yum -y install slurm slurm-munge
+
+            chkconfig munge on
+            chkconfig slurm on
 
             myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
             myip_last_octet=${myip##*.}
@@ -86,9 +97,6 @@ resources:
             }
             EOF
             curl -T /tmp/wait-data '$WAIT_HANDLE'
-
-            echo $MASTER_NODE_IP
-
           params:
             "$MASTER_NODE_IP":
               get_param: master_node_ip
