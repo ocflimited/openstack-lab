@@ -22,8 +22,8 @@ packstack --answer-file /root/packstack_answers.txt
 
 . /root/keystonerc_admin
 neutron net-create ext_net --router:external=True
-neutron subnet-create --name ext_subnet --disable-dhcp ext_net 192.168.33.0/24 \
-   --gateway 192.168.33.254 --allocation-pool start=192.168.33.161,end=192.168.33.190
+neutron subnet-create --name ext_subnet --disable-dhcp ext_net 192.168.80.0/20 \
+   --gateway 192.168.95.254 --allocation-pool start=192.168.81.1,end=192.168.94.255
 
 wget --no-check-certificate https://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
 
