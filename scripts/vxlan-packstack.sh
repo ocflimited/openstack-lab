@@ -33,6 +33,8 @@ glance image-create --name cirros --is-public=True --disk-format=qcow2 \
 keystone tenant-create --name demo
 keystone user-create --name demo --pass demo
 keystone user-role-add --user demo --role _member_ --tenant demo
+keystone user-role-add --user demo --role heat_stack_owner --tenant demo
+keystone user-role-add --user demo --role heat_stack_user --tenant demo
 
 cat > /root/keystonerc_demo << EOF
 export OS_USERNAME=demo

@@ -43,6 +43,8 @@ demo_tenant_id=$(keystone tenant-get demo | grep id | awk '{print $4}')
 neutron net-create stack_net_priv --provider:network_type=gre --tenant-id ${demo_tenant_id} --provider:segmentation_id=11
 keystone user-create --name demo --pass demo
 keystone user-role-add --user demo --role _member_ --tenant demo
+keystone user-role-add --user demo --role heat_stack_owner --tenant demo
+keystone user-role-add --user demo --role heat_stack_user --tenant demo
 
 cat > /root/keystonerc_demo << EOF
 export OS_USERNAME=demo
