@@ -1,9 +1,9 @@
 heat_template_version: 2014-10-16
 
 description: >
-  This template will boot a HPC cluster with one or more compute
-  nodes (as specified by the number_of_compute_nodes parameter, which
-  defaults to "10").
+  This template will boot a Kubernetes cluster with one or more
+  minions (as specified by the number_of_minions parameter, which
+  defaults to "2").
 
 parameters:
 
@@ -29,19 +29,16 @@ parameters:
     type: string
     default: m1.small
     description: flavor to use when booting the server
-    constraints:
-      - allowed_values: [m1.tiny, m1.small, m1.large]
-        description: Value must be one of 'm1.tiny', 'm1.small' or 'm1.large'
 
   dns_nameserver:
     type: string
-    default: 8.8.8.8
     description: address of a dns nameserver reachable in your environment
+    default: 8.8.8.8
 
   number_of_compute_nodes:
     type: string
-    default: 10
     description: how many compute nodes to spawn
+    default: 10
 
 resources:
 
@@ -120,7 +117,7 @@ resources:
 
   ######################################################################
   #
-  # master_node server.  this sets up a Master Node
+  # databases server.  this sets up a MySQL server
   #
   master_node:
     type: "OS::Nova::Server"
@@ -142,21 +139,48 @@ resources:
 
             yum -y upgrade
 
-            cat > /etc/yum.repos.d/slurm.repo << EOF
-            [slurm]
-            name=slurm
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/slurm
+            cat > /etc/yum.repos.d/torque.repo << EOF
+            [torque]
+            name=torque
+            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/torque
             enabled=1
             gpgcheck=0
             EOF
 
-            yum -y install slurm slurm-slurmdbd slurm-munge
+            yum -y install torque-server torque-scheduler
 
-            dd if=/dev/urandom bs=1 count=1024 /etc/munge.key
-            chmod 400 /etc/munge.key
+            chkconfig pbs_server on
+            chkconfig pbs_scheduler on
 
-            service munge restart
+            myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
 
+            echo $myip > /var/spool/torque/server_name 
+            rm -rf /var/spool/torque/server_priv/nodes
+
+            for node in `echo $COMP_NODE_NAMES`
+            do
+              echo $node >> /var/spool/torque/server_priv/nodes
+            done
+
+            # Parse the 2 variables to create /etc/hosts file
+            array1=(${COMP_NODE_ADDRESSES// / }) 
+            array2=(${COMP_NODE_NAMES// / }) 
+
+            length=${#array1[@]}
+
+            for ((i=0;i<=$length;i++)); do
+              echo -e "${array1[$i]} ${array2[$i]}"
+            done >> /etc/hosts
+
+            # Start the torque services
+            service pbs_server start
+            service pbs_scheduler start
+
+            qmgr -c "c q testq"
+            qmgr -c "s q testq queue_type=e"
+            qmgr -c "s q testq enabled=t"
+            qmgr -c "s q testq started=t"
+            qmgr -c "s s scheduling=true"
 
             cat > /tmp/wait-data << EOF
             {
@@ -168,7 +192,8 @@ resources:
             EOF
             curl -T /tmp/wait-data '$WAIT_HANDLE'
           params:
-            "$COMP_NODE_ADDRESSES": {list_join: [",", {get_attr: [compute_nodes, compute_node_ip]}]}
+            "$COMP_NODE_ADDRESSES": {list_join: [" ", {get_attr: [compute_nodes, compute_node_ip]}]}
+            "$COMP_NODE_NAMES": {list_join: [" ", {get_attr: [compute_nodes, name]}]}
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
       networks:
@@ -197,10 +222,6 @@ resources:
       port_id:
         get_resource: master_node_eth0
 
-  ######################################################################
-  #
-  # compute_node server.  this sets up the Compute Nodes
-  #
   compute_nodes:
     type: "OS::Heat::ResourceGroup"
     depends_on:
@@ -226,6 +247,9 @@ outputs:
 
   compute_nodes:
     value: {get_attr: [compute_nodes, compute_node_ip]}
+
+  compute_names:
+    value: {get_attr: [compute_nodes, name]}
 
   compute_node_external:
     value: {get_attr: [compute_nodes, compute_node_external_ip]}

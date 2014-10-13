@@ -6,6 +6,7 @@ cat > /tmp/sed.script << EOF
 s/\(CONFIG_KEYSTONE_ADMIN_PW=\).*/\1openstack/g
 s/\(CONFIG_HEAT_INSTALL=\).*/\1y/g
 s/\(CONFIG_NTP_SERVERS=\).*/\110.0.0.251/g
+s/\(CONFIG_HEAT_CFN_INSTALL=\).*/\1y/g
 
 s/\(CONFIG_COMPUTE_HOSTS=\).*/\110.0.0.1,10.0.0.2,10.0.0.3/g
 

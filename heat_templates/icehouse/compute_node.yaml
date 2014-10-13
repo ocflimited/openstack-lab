@@ -1,7 +1,7 @@
-heat_template_version: 2014-10-16
+heat_template_version: 2013-05-23
 
 description: >
-  HOT template to deploy one compute node into an existing neutron tenant network and
+  HOT template to deploy one compute node into an xisting neutron tenant network and
   assign floating IP address to the server so they are routable from the
   public network.
 
@@ -26,9 +26,6 @@ parameters:
     type: string
     description: ID of private sub network into which servers get deployed
   master_node_ip:
-    type: string
-    description: IP address of the Master node.
-  index_name:
     type: string
     description: IP address of the Master node.
 
@@ -57,12 +54,13 @@ resources:
   compute_node:
     type: OS::Nova::Server
     properties:
-      name: { list_join : ["",["compute", { get_param: index_name }]] }
-      image: { get_param: image }
-      flavor: { get_param: flavor }
-      key_name: { get_param: key_name }
-      networks:
-        - port: { get_resource: compute_port }
+      name: compute
+      image:
+        get_param: image
+      flavor:
+        get_param: flavor
+      key_name:
+        get_param: key_name
       user_data_format: RAW
       user_data:
         str_replace:
@@ -72,18 +70,29 @@ resources:
             yum -y remove NetworkManager
             chkconfig network on
 
-            cat > /etc/yum.repos.d/slurm.repo << EOF
-            [slurm]
-            name=slurm
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/slurm
+            cat > /etc/yum.repos.d/torque.repo << EOF
+            [torque]
+            name=torque
+            baseurl=http://192.168.95.200/install/post/otherpkgs/el7/torque
             enabled=1
             gpgcheck=0
             EOF
 
-            yum -y install slurm slurm-munge
+            yum -y install torque-client
 
-            chkconfig munge on
-            chkconfig slurm on
+            chkconfig trqauthd on
+            chkconfig pbs_mom on
+
+            echo $MASTER_NODE_IP > /var/spool/torque/server_name
+
+            cat > /var/spool/torque/mom_priv/config << EOF
+            $logevent 0x1ff
+
+            $pbsserver $MASTER_NODE_IP
+            EOF
+
+            service trquathd start
+            service pbs_mom start
 
             myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
             myip_last_octet=${myip##*.}
@@ -109,34 +118,32 @@ resources:
   compute_node_eth0:
     type: OS::Neutron::Port
     properties:
-      network_id: { get_param: private_net_id }
+      network_id:
+        get_param: private_net_id
       fixed_ips:
-        - subnet_id: { get_param: private_subnet_id }
-      security_groups: [{ get_resource: secgroup_all_open }]
+        - subnet_id:
+            get_param: private_subnet_id
+      security_groups: 
+        - get_resource: secgroup_all_open
 
   compute_floating_ip:
     type: OS::Neutron::FloatingIP
     properties:
-      floating_network_id: { get_param: public_net_id }
-      port_id: { get_resource: compute_node_eth0 }
-
-  compute_security_group:
-    type: OS::Neutron::SecurityGroup
-    properties:
-      description: Add security group rules for server
-      name: security-group
-      rules:
-        - remote_ip_prefix: 0.0.0.0/0
-          protocol: tcp
-          port_range_min: 22
-          port_range_max: 22
-        - remote_ip_prefix: 0.0.0.0/0
-          protocol: icmp
+      floating_network_id:
+        get_param: public_net_id
+      port_id:
+        get_resource: compute_node_eth0
 
 outputs:
+  compute_node_name:
+    description: The name of the compute node
+    value: { get_attr: [ compute_node, instance_name ] }
   compute_node_ip:
     description: IP address of compute node in private network
     value: { get_attr: [ compute_node_eth0, fixed_ips, 0, ip_address ] }
   compute_node_external_ip:
     description: Floating IP address of compute node in public network
     value: { get_attr: [ compute_floating_ip, floating_ip_address ] }
+  compute_node_show:
+    description: Show all attributes
+    value: { get_attr: [ compute_node, show ] }
