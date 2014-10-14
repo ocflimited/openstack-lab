@@ -1,7 +1,7 @@
 heat_template_version: 2014-10-16
 
 description: >
-  HOT template to deploy one compute node into an xisting neutron tenant network and
+  HOT template to deploy one compute node into an existing neutron tenant network and
   assign floating IP address to the server so they are routable from the
   public network.
 
@@ -75,7 +75,7 @@ resources:
             cat > /etc/yum.repos.d/torque.repo << EOF
             [torque]
             name=torque
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/torque
+            baseurl=http://192.168.95.200/install/post/otherpkgs/el7/torque
             enabled=1
             gpgcheck=0
             EOF

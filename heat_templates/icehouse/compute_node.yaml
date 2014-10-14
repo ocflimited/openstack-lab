@@ -6,6 +6,9 @@ description: >
   public network.
 
 parameters:
+  host_prefix:
+    type: string
+    description: The hostname will be prefixed by this string
   key_name:
     type: string
     description: Name of keypair to assign to servers
@@ -54,7 +57,8 @@ resources:
   compute_node:
     type: OS::Nova::Server
     properties:
-      name: compute
+      name:
+        get_param: host_prefix
       image:
         get_param: image
       flavor:
@@ -86,16 +90,23 @@ resources:
             echo $MASTER_NODE_IP > /var/spool/torque/server_name
 
             cat > /var/spool/torque/mom_priv/config << EOF
-            $logevent 0x1ff
+            \$logevent 0x1ff
 
-            $pbsserver $MASTER_NODE_IP
+            \$pbsserver $MASTER_NODE_IP
             EOF
-
-            service trquathd start
-            service pbs_mom start
 
             myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
             myip_last_octet=${myip##*.}
+
+            hostname $HOST_PREFIX${myip_last_octet}
+
+            echo $myip $HOST_PREFIX${myip_last_octet} >> /etc/hosts
+
+            service trquathd restart
+            service pbs_mom restart
+
+            groupadd -g 4001 testuser
+            useradd -g 4001 -u 4001 -m testuser 
 
             cat > /tmp/wait-data << EOF
             {
@@ -111,6 +122,8 @@ resources:
               get_param: master_node_ip
             "$WAIT_HANDLE":
               get_resource: node_wait_handle
+            "$HOST_PREFIX":
+              get_param: host_prefix
       networks:
         - port:
             get_resource: compute_node_eth0
@@ -144,6 +157,3 @@ outputs:
   compute_node_external_ip:
     description: Floating IP address of compute node in public network
     value: { get_attr: [ compute_floating_ip, floating_ip_address ] }
-  compute_node_show:
-    description: Show all attributes
-    value: { get_attr: [ compute_node, show ] }

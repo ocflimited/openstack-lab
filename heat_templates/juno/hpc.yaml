@@ -1,9 +1,9 @@
 heat_template_version: 2014-10-16
 
 description: >
-  This template will boot a Kubernetes cluster with one or more
-  minions (as specified by the number_of_minions parameter, which
-  defaults to "2").
+  This template will boot a HPC cluster with one or more compute
+  nodes (as specified by the number_of_compute_nodes parameter, which
+  defaults to "10").
 
 parameters:
 
@@ -142,7 +142,7 @@ resources:
             cat > /etc/yum.repos.d/torque.repo << EOF
             [torque]
             name=torque
-            baseurl=http://192.168.33.200/install/post/otherpkgs/el7/torque
+            baseurl=http://192.168.95.200/install/post/otherpkgs/el7/torque
             enabled=1
             gpgcheck=0
             EOF
@@ -192,8 +192,10 @@ resources:
             EOF
             curl -T /tmp/wait-data '$WAIT_HANDLE'
           params:
-            "$COMP_NODE_ADDRESSES": {list_join: [" ", {get_attr: [compute_nodes, compute_node_ip]}]}
-            "$COMP_NODE_NAMES": {list_join: [" ", {get_attr: [compute_nodes, name]}]}
+            "$COMP_NODE_ADDRESSES": 
+              list_join: [" ", {get_attr: [compute_nodes, compute_node_ip]}]
+            "$COMP_NODE_NAMES": 
+              list_join: [" ", {get_attr: [compute_nodes, name]}]
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
       networks:

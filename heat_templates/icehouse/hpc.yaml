@@ -26,6 +26,11 @@ parameters:
     default: centos7
     description: glance image used to boot the server
 
+  host_prefix:
+    type: string
+    default: compute
+    description: The prefix of the hostname of the compute node
+
   flavor:
     type: string
     default: m1.small
@@ -115,6 +120,9 @@ resources:
         - protocol: tcp
           port_range_min: 4001
           port_range_max: 4001
+        - protocol: tcp
+          port_range_min: 15000
+          port_range_max: 15004
 
   ######################################################################
   #
@@ -139,7 +147,7 @@ resources:
       user_data:
         str_replace:
           template: |
-            #!/bin/sh
+            #!/bin/bash
 
             yum -y upgrade
 
@@ -158,42 +166,41 @@ resources:
             chkconfig pbs_sched on
 
             myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
+            myip_last_octet=${myip##*.}
+            echo $myip `hostname` >> /etc/hosts
 
             mkdir -p /var/spool/torque/server_priv
             echo $myip > /var/spool/torque/server_name 
             rm -rf /var/spool/torque/server_priv/nodes
             mkdir -p /var/spool/torque/checkpoint
 
-            echo ${COMP_NODE_ADDRESSES}
-            echo ${COMP_NODE_NAMES}
-
-            array1=(${COMP_NODE_ADDRESSES// / }) 
-            array2=(${COMP_NODE_NAMES// / }) 
-
-            length=${#array1[@]}
-
-            for ((i=0;i<=$length;i++)); do
-              echo -e "${array1[$i]} ${array2[$i]}"
-            done >> /etc/hosts
-
-            echo $myip `hostname` >> /etc/hosts
-
             pbs_server -t create -f
-
-            for node in $(echo ${COMP_NODE_NAMES})
-            do
-              echo $node >> /var/spool/torque/server_priv/nodes
-            done
-
             service trqauthd restart
             service pbs_server restart
             service pbs_sched restart
+
+            IFS="," read -a array1 <<< "$COMP_NODE_ADDRESSES"
+            IFS="," read -a array2 <<< "$COMP_NODE_NAMES"
+
+            length=${#array1[@]}
+
+            for ((i=0;i<$length;i++)); do
+              comp_ip=${array1[$i]}
+              comp_ip_last_octet=${comp_ip##*.}
+              comp_name=$HOST_PREFIX${comp_ip_last_octet}
+              echo -e "$comp_ip $comp_name" >> /etc/hosts
+              qmgr -c "c n $comp_name" 
+              pbsnodes -c $comp_name
+            done 
 
             qmgr -c "c q testq"
             qmgr -c "s q testq queue_type=e"
             qmgr -c "s q testq enabled=t"
             qmgr -c "s q testq started=t"
             qmgr -c "s s scheduling=true"
+
+            groupadd -g 4001 testuser
+            useradd -g 4001 -u 4001 -m testuser
 
             cat > /tmp/wait-data << EOF
             {
@@ -207,10 +214,14 @@ resources:
           params:
             # NB: For this to work you need a version of Heat that
             # includes https://review.openstack.org/#/c/121139/
-            "$COMP_NODE_ADDRESSES": { "Fn::Join": [ " ", { get_attr: [compute_nodes, compute_node_ip] } ] }
-            "$COMP_NODE_NAMES": { "Fn::Join": [ " " , { get_attr: [compute_nodes, compute_node_name] } ] }
+            "$COMP_NODE_ADDRESSES":
+              "Fn::Join": [ ",", { get_attr: [compute_nodes, compute_node_ip] } ]
+            "$COMP_NODE_NAMES":
+              "Fn::Join": [ "," , { get_attr: [compute_nodes, compute_node_name] } ]
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
+            "$HOST_PREFIX":
+              get_param: host_prefix
 
   master_node_eth0:
     type: "OS::Neutron::Port"
@@ -243,6 +254,7 @@ resources:
       resource_def:
         type: compute_node.yaml
         properties:
+          host_prefix: {get_param: host_prefix}
           key_name: {get_param: key_name}
           image: {get_param: image}
           flavor: {get_param: flavor}
@@ -264,6 +276,3 @@ outputs:
 
   compute_node_external:
     value: {get_attr: [compute_nodes, compute_node_external_ip]}
-
-  compute_node_show:
-    value: {get_attr: [compute_nodes, compute_node_show]}
