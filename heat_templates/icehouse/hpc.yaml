@@ -170,7 +170,7 @@ resources:
             echo $myip `hostname` >> /etc/hosts
 
             mkdir -p /var/spool/torque/server_priv
-            echo $myip > /var/spool/torque/server_name 
+            echo $myip > /var/spool/torque/server_name
             rm -rf /var/spool/torque/server_priv/nodes
             mkdir -p /var/spool/torque/checkpoint
 
@@ -189,18 +189,32 @@ resources:
               comp_ip_last_octet=${comp_ip##*.}
               comp_name=$HOST_PREFIX${comp_ip_last_octet}
               echo -e "$comp_ip $comp_name" >> /etc/hosts
-              qmgr -c "c n $comp_name" 
+              qmgr -c "c n $comp_name"
               pbsnodes -c $comp_name
-            done 
+            done
 
             qmgr -c "c q testq"
             qmgr -c "s q testq queue_type=e"
             qmgr -c "s q testq enabled=t"
             qmgr -c "s q testq started=t"
             qmgr -c "s s scheduling=true"
+            qmgr -c "s s default_queue=testq"
 
             groupadd -g 4001 testuser
             useradd -g 4001 -u 4001 -m testuser
+
+            cat > ~testuser/torque.script << EOF
+            #!/bin/bash
+            #PBS -S /bin/bash
+            #PBS -N test.job
+            #PBS -l nodes=1:ppn=1
+
+            echo Starting Job, sleeping ...
+            sleep 1200
+            echo Done
+            EOF
+
+            chown testuser:testuer ~testuser/torque.script
 
             cat > /tmp/wait-data << EOF
             {

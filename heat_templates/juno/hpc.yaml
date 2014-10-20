@@ -135,7 +135,7 @@ resources:
       user_data:
         str_replace:
           template: |
-            #!/bin/sh
+            #!/bin/bash
 
             yum -y upgrade
 
@@ -149,38 +149,59 @@ resources:
 
             yum -y install torque-server torque-scheduler
 
+            chkconfig trqauthd on
             chkconfig pbs_server on
-            chkconfig pbs_scheduler on
+            chkconfig pbs_sched on
 
             myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
+            myip_last_octet=${myip##*.}
+            echo $myip `hostname` >> /etc/hosts
 
-            echo $myip > /var/spool/torque/server_name 
+            mkdir -p /var/spool/torque/server_priv
+            echo $myip > /var/spool/torque/server_name
             rm -rf /var/spool/torque/server_priv/nodes
+            mkdir -p /var/spool/torque/checkpoint
 
-            for node in `echo $COMP_NODE_NAMES`
-            do
-              echo $node >> /var/spool/torque/server_priv/nodes
-            done
+            pbs_server -t create -f
+            service trqauthd restart
+            service pbs_server restart
+            service pbs_sched restart
 
-            # Parse the 2 variables to create /etc/hosts file
-            array1=(${COMP_NODE_ADDRESSES// / }) 
-            array2=(${COMP_NODE_NAMES// / }) 
+            IFS="," read -a array1 <<< "$COMP_NODE_ADDRESSES"
+            IFS="," read -a array2 <<< "$COMP_NODE_NAMES"
 
             length=${#array1[@]}
 
-            for ((i=0;i<=$length;i++)); do
-              echo -e "${array1[$i]} ${array2[$i]}"
-            done >> /etc/hosts
-
-            # Start the torque services
-            service pbs_server start
-            service pbs_scheduler start
+            for ((i=0;i<$length;i++)); do
+              comp_ip=${array1[$i]}
+              comp_name=${array2[$i]}
+              echo -e "$comp_ip $comp_name" >> /etc/hosts
+              qmgr -c "c n $comp_name"
+              pbsnodes -c $comp_name
+            done
 
             qmgr -c "c q testq"
             qmgr -c "s q testq queue_type=e"
             qmgr -c "s q testq enabled=t"
             qmgr -c "s q testq started=t"
             qmgr -c "s s scheduling=true"
+            qmgr -c "s s default_queue=testq"
+
+            groupadd -g 4001 testuser
+            useradd -g 4001 -u 4001 -m testuser
+
+            cat > ~testuser/torque.script << EOF
+            #!/bin/bash
+            #PBS -S /bin/bash
+            #PBS -N test.job
+            #PBS -l nodes=1:ppn=1
+
+            echo Starting Job, sleeping ...
+            sleep 1200
+            echo Done
+            EOF
+
+            chown testuser:testuer ~testuser/torque.script
 
             cat > /tmp/wait-data << EOF
             {
@@ -192,9 +213,9 @@ resources:
             EOF
             curl -T /tmp/wait-data '$WAIT_HANDLE'
           params:
-            "$COMP_NODE_ADDRESSES": 
+            "$COMP_NODE_ADDRESSES":
               list_join: [" ", {get_attr: [compute_nodes, compute_node_ip]}]
-            "$COMP_NODE_NAMES": 
+            "$COMP_NODE_NAMES":
               list_join: [" ", {get_attr: [compute_nodes, name]}]
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
