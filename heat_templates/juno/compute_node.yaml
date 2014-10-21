@@ -6,6 +6,9 @@ description: >
   public network.
 
 parameters:
+  host_prefix:
+    type: string
+    description: The hostname will be prefixed by this string
   key_name:
     type: string
     description: Name of keypair to assign to servers
@@ -57,7 +60,7 @@ resources:
   compute_node:
     type: OS::Nova::Server
     properties:
-      name: { list_join : ["",["compute", { get_param: index_name }]] }
+      name: { list_join : ["",[{ get_param: host_prefix }, { get_param: index_name }]] }
       image: { get_param: image }
       flavor: { get_param: flavor }
       key_name: { get_param: key_name }
@@ -82,20 +85,27 @@ resources:
 
             yum -y install torque-client
 
+            chkconfig trqauthd on
             chkconfig pbs_mom on
 
             echo $MASTER_NODE_IP > /var/spool/torque/server_name
 
             cat > /var/spool/torque/mom_priv/config << EOF
-            $logevent 0x1ff
+            \$logevent 0x1ff
 
-            $pbsserver $MASTER_NODE_IP
+            \$pbsserver $MASTER_NODE_IP
             EOF
-
-            service pbs_mom start
 
             myip=$(ip addr show eth0 | awk '$1 == "inet" {print $2}' | cut -f1 -d/)
             myip_last_octet=${myip##*.}
+
+            echo $myip `hostname` >> /etc/hosts
+
+            service trquathd restart
+            service pbs_mom restart
+
+            groupadd -g 4001 testuser
+            useradd -g 4001 -u 4001 -m testuser
 
             cat > /tmp/wait-data << EOF
             {

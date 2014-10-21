@@ -25,6 +25,11 @@ parameters:
     default: centos7
     description: glance image used to boot the server
 
+  host_prefix:
+    type: string
+    default: compute
+    description: The prefix of the hostname of the compute node
+
   flavor:
     type: string
     default: m1.small
@@ -114,6 +119,9 @@ resources:
         - protocol: tcp
           port_range_min: 4001
           port_range_max: 4001
+        - protocol: tcp
+          port_range_min: 15000
+          port_range_max: 15004
 
   ######################################################################
   #
@@ -201,7 +209,7 @@ resources:
             echo Done
             EOF
 
-            chown testuser:testuer ~testuser/torque.script
+            chown testuser:testuser ~testuser/torque.script
 
             cat > /tmp/wait-data << EOF
             {
@@ -214,9 +222,9 @@ resources:
             curl -T /tmp/wait-data '$WAIT_HANDLE'
           params:
             "$COMP_NODE_ADDRESSES":
-              list_join: [" ", {get_attr: [compute_nodes, compute_node_ip]}]
+              list_join: [",", {get_attr: [compute_nodes, compute_node_ip]}]
             "$COMP_NODE_NAMES":
-              list_join: [" ", {get_attr: [compute_nodes, name]}]
+              list_join: [",", {get_attr: [compute_nodes, compute_node_name]}]
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
       networks:
@@ -255,6 +263,7 @@ resources:
         type: compute_node.yaml
         properties:
           index_name: "%index%"
+          host_prefix: {get_param: host_prefix}
           key_name: {get_param: key_name}
           image: {get_param: image}
           flavor: {get_param: flavor}
@@ -265,14 +274,14 @@ resources:
 
 outputs:
 
-  master_node:
+  master_node_external:
     value: {get_attr: [master_node_floating, floating_ip_address]}
 
-  compute_nodes:
+  compute_node_ips:
     value: {get_attr: [compute_nodes, compute_node_ip]}
 
-  compute_names:
-    value: {get_attr: [compute_nodes, name]}
+  compute_node_names:
+    value: {get_attr: [compute_nodes, compute_node_name]}
 
   compute_node_external:
     value: {get_attr: [compute_nodes, compute_node_external_ip]}

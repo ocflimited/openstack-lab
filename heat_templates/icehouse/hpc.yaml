@@ -214,7 +214,7 @@ resources:
             echo Done
             EOF
 
-            chown testuser:testuer ~testuser/torque.script
+            chown testuser:testuser ~testuser/torque.script
 
             cat > /tmp/wait-data << EOF
             {
