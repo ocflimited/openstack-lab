@@ -1,9 +1,9 @@
 heat_template_version: 2013-05-23
 
 description: >
-  This template will boot a Kubernetes cluster with one or more
-  minions (as specified by the number_of_minions parameter, which
-  defaults to "2").
+  This template will boot a HPC cluster with one or more compute
+  nodes (as specified by the number_of_compute_nodes parameter, which
+  defaults to "10").
 
 parameters:
 
