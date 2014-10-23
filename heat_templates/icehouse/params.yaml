@@ -1,0 +1,5 @@
+parameters:
+  key_name: demo_key
+  flavor: hpc_node
+  number_of_compute_nodes: 10
+  public_net_id: 90407899-5321-43d1-8e37-3e7207100c87
