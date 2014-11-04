@@ -25,6 +25,29 @@ sed -i -f /tmp/sed.script /root/packstack_answers.txt
 
 packstack --answer-file /root/packstack_answers.txt
 
+#
+# BEGIN -- Update all the publicURL for all the endpoints
+#
+sqlpasswd=`cat .my.cnf | grep password | awk -F= '{print $2}'`
+
+echo "select url from endpoint where interface=\"public\";" > /tmp/sql.cmd
+
+mysql --password=$sqlpasswd -u root keystone < /tmp/sql.cmd | tail -n +2 > /tmp/endpoint.urls
+rm -rf /tmp/sql.cmd /tmp/endpoint.urls
+
+for url in `cat /tmp/endpoint.urls`
+do
+  oldurl=$url
+  newurl=`echo $url | sed s/$PRIMARY_PRIVIP/$PRIMARY_PUBIP/g`
+  echo "update endpoint set url=\"$newurl\" where url=\"$oldurl\" and interface=\"public\";" >> /tmp/sql.cmd
+done
+
+mysql --password=$sqlpasswd -u root keystone < /tmp/sql.cmd
+rm -rf /tmp/sql.cmd
+#
+# END -- Update all the publicURL for all the endpoints
+#
+
 crudini --set --existing /etc/heat/heat.conf DEFAULT heat_metadata_server_url http://${PRIMARY_PUBIP}:8000
 crudini --set --existing /etc/heat/heat.conf DEFAULT heat_waitcondition_server_url http://${PRIMARY_PUBIP}:8000/v1/waitcondition
 
