@@ -1,0 +1,20 @@
+# OpenStack Foreman
+rdo-openstack/openstack-foreman-installer
+
+# Puppet
+puppet/puppet
+
+# foreman
+foreman/foreman
+
+# Ruby
+scl/ruby193-rubygems
+scl/ruby193-rubygem-sqlite3
+
+# Dependancy for foreman-installer
+extras/centos-release-SCL
+
+# Other deps
+epel/rubygem-json
+
+misc/ruby193-rubygem-foreman_simplify

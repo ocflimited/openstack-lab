@@ -1,0 +1,24 @@
+## PackStack/Puppet
+rhosp5/puppet
+
+## OpenStack Deps
+rhosp5/openstack-utils
+rhosp5/openstack-selinux
+
+## Nova
+rhosp5/openstack-nova-compute
+
+## Neutron
+rhosp5/openstack-neutron
+rhosp5/openstack-neutron-openvswitch
+rhosp5/openstack-neutron-ml2
+
+## Telemetry
+rhosp5/openstack-ceilometer-compute
+
+## Nagios
+rhosp5/nagios-plugins*
+rhosp5/nrpe
+
+## Misc
+#rhosp5/scsi-target-utils

@@ -1,19 +1,21 @@
 # <xCAT data object stanza file>
 
-c6-os:
+c6-os-foreman:
     objtype=osimage
+    addkcmdline=biosdevname=1
+    groups=all
     imagetype=linux
     osarch=x86_64
     osname=Linux
     osvers=centos6.5
     otherpkgdir=/install/post/otherpkgs/el6
-    otherpkglist=/install/templates/c6-os/controller.otherpkgs.pkglist
-    partitionfile=/install/templates/c6-os/controller.partfile
+    otherpkglist=/install/templates/c6-os/foreman.otherpkgs.pkglist
+    partitionfile=/install/templates/c6-os/foreman.partfile
     pkgdir=/install/centos6.5/x86_64,/install/centos6.5/updates/x86_64
-    pkglist=/install/templates/c6-os/controller.pkglist
-    postbootscripts=confignics,packstack-openstack,add_glance_images
+    pkglist=/install/templates/c6-os/foreman.pkglist
+    postbootscripts=confignics
     postscripts=hardeths
-    profile=controller
+    profile=foreman
     provmethod=install
-    synclists=/install/templates/c6-os/controller.synclist
+    synclists=/install/templates/c6-os/foreman.synclist
     template=/opt/xcat/share/xcat/install/centos/compute.centos6.tmpl

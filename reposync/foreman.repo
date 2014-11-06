@@ -1,0 +1,11 @@
+[foreman-6]
+name=Foreman for el 6
+baseurl=http://yum.theforeman.org/releases/1.5/el6/x86_64/
+enabled=1
+gpgcheck=0
+
+[foreman-7]
+name=Foreman for el 7
+baseurl=http://yum.theforeman.org/releases/latest/el7/x86_64/
+enabled=1
+gpgcheck=0

@@ -1,0 +1,72 @@
+## PackStack/Puppet
+rhosp5/puppet
+rhosp5/openstack-packstack
+rhosp5/openstack-puppet-modules
+rhosp5/erlang
+
+## Pre-reqs
+rhosp5/mariadb-galera-server
+rhosp5/rabbitmq-server
+
+## OpenStack Deps
+rhosp5/openstack-utils
+rhosp5/openstack-selinux
+
+## Nova
+rhosp5/openstack-nova
+rhosp5/openstack-nova-novncproxy
+rhosp5/openstack-nova-console
+
+## Neutron
+rhosp5/openstack-neutron
+rhosp5/openstack-neutron-ml2
+rhosp5/openstack-neutron-openvswitch
+rhosp5/openvswitch
+
+## Glance
+rhosp5/openstack-glance
+
+## KeyStone
+rhosp5/openstack-keystone
+
+## Swift
+rhosp5/openstack-swift
+rhosp5/openstack-swift-proxy
+rhosp5/openstack-swift-object
+rhosp5/openstack-swift-container
+rhosp5/openstack-swift-account
+
+## Dashboard
+rhosp5/openstack-dashboard
+
+## Telemetry
+rhosp5/mongodb-server
+rhosp5/openstack-ceilometer-*
+rhosp5/python-ceilometer
+rhosp5/python-ceilometerclient
+
+## Cinder
+rhosp5/openstack-cinder
+
+## Heat
+rhosp5/openstack-heat-api
+
+## Nagios
+rhosp5/nagios
+rhosp5/nagios-devel
+rhosp5/nagios-plugins-nrpe
+rhosp5/nagios-plugins-ping
+rhosp5/nrpe
+
+# HA Stuff
+rh-ha/pacemaker
+rh-ha/pacemaker-cli
+rh-ha/pacemaker-cluster-libs
+rh-ha/pacemaker-libs
+rh-ha/pacemaker-libs-devel
+rh-ha/pcs
+
+# DRBD Stuff
+#drbd/drbd-km-3.10.0_123.el7.x86_64
+#drbd/drbd-pacemaker
+#drbd/drbd

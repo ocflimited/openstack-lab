@@ -1,0 +1,4 @@
+
+APPEND:
+/install/syncfiles/hosts.allow.append -> /etc/hosts.allow
+/install/syncfiles/hosts.deny.append -> /etc/hosts.deny

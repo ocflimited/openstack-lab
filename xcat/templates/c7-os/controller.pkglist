@@ -11,7 +11,13 @@ memcached
 mod_ssl
 mod_wsgi
 openssl
+pacemaker
+pacemaker-cli
+pacemaker-cluster-libs
+pacemaker-libs
+pacemaker-libs-devel
 patch
+pcs
 php
 python-memcached
 qemu-kvm

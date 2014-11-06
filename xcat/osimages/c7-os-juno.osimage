@@ -11,9 +11,9 @@ c7-os-juno:
     partitionfile=/install/templates/c7-os/controller.partfile
     pkgdir=/install/centos7.0/x86_64,/install/centos7.0/updates/x86_64
     pkglist=/install/templates/c7-os/controller.pkglist
-    postbootscripts=setup_extnw -n xcat_pub,packstack-openstack,add_glance_images
+    postbootscripts=setup_extnw -n stack_pub,configOvsBridge bridgeprereq enp2s1f1:br-ex,packstack-openstack,add_glance_images
     postscripts=confignics,hardeths
     profile=controller
     provmethod=install
     synclists=/install/templates/c7-os/controller.synclist
-    template=/install/templates/c7-os/common.juno.tmpl
+    template=/install/templates/c7-os/common.tmpl

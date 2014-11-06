@@ -1,0 +1,19 @@
+# <xCAT data object stanza file>
+
+rh7-os-nova:
+    objtype=osimage
+    imagetype=linux
+    osarch=x86_64
+    osname=Linux
+    osvers=rhels7.0
+    otherpkgdir=/install/post/otherpkgs/el7
+    otherpkglist=/install/templates/rh7-os/nova.otherpkgs.pkglist
+    partitionfile=/install/templates/rh7-os/nova.partfile
+    pkgdir=/install/rhels7.0/x86_64,/install/rhels7.0/updates/x86_64
+    pkglist=/install/templates/rh7-os/nova.pkglist
+    postbootscripts=confignics
+    postscripts=hardeths
+    profile=nova
+    provmethod=install
+    synclists=/install/templates/rh7-os/nova.synclist
+    template=/install/templates/rh7-os/common.tmpl

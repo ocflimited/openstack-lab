@@ -1,5 +1,5 @@
 ## PackStack/Puppet
-puppet/puppet
+epel/puppet
 
 ## OpenStack Deps
 rdo-openstack/openstack-utils
@@ -22,3 +22,4 @@ epel/nrpe
 
 ## Misc
 epel/scsi-target-utils
+extras/python-greenlet

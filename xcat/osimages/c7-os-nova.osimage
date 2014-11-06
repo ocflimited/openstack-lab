@@ -16,4 +16,4 @@ c7-os-nova:
     profile=nova
     provmethod=install
     synclists=/install/templates/c7-os/nova.synclist
-    template=/opt/xcat/share/xcat/install/rh/compute.rhel7.tmpl
+    template=/install/templates/c7-os/common.tmpl

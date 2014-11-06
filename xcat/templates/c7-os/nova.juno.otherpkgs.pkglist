@@ -1,5 +1,5 @@
 ## PackStack/Puppet
-puppet/puppet
+epel/puppet
 
 ## OpenStack Deps
 rdo-openstack-juno/openstack-utils
