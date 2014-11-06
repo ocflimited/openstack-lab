@@ -229,9 +229,9 @@ resources:
             # NB: For this to work you need a version of Heat that
             # includes https://review.openstack.org/#/c/121139/
             "$COMP_NODE_ADDRESSES":
-              "Fn::Join": [ ",", { get_attr: [compute_nodes, compute_node_ip] } ]
+              "Fn::Join": [ ",", [{ get_attr: [compute_nodes, compute_node_ip] }] ]
             "$COMP_NODE_NAMES":
-              "Fn::Join": [ "," , { get_attr: [compute_nodes, compute_node_name] } ]
+              "Fn::Join": [ "," , [{ get_attr: [compute_nodes, compute_node_name] }] ]
             "$WAIT_HANDLE":
               get_resource: master_wait_handle
             "$HOST_PREFIX":

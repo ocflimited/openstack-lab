@@ -19,6 +19,8 @@ s/\(CONFIG_USE_EPEL=\).*/\1n/g
 s/\(CONFIG_NEUTRON_OVS_BRIDGE_MAPPINGS=\).*/\1physnet_mgmt:br-mgmt/g
 s/\(CONFIG_NEUTRON_OVS_BRIDGE_IFACES=\).*/\1br-mgmt:enp2s1f0/g
 s/\(CONFIG_PROVISION_DEMO=\).*/\1n/g
+
+s/\(CONFIG_LBAAS_INSTALL=\).*/\1y/g
 EOF
 
 sed -i -f /tmp/sed.script /root/packstack_answers.txt
@@ -56,6 +58,8 @@ crudini --set /etc/nova/nova.conf DEFAULT osapi_compute_ext_list nova.api.openst
 crudini --set /etc/nova/nova.conf DEFAULT osapi_compute_extension nova.api.openstack.compute.contrib.standard_extensions
 sed -i -e 's/^\(osapi_compute_extension.*\)/\1\nosapi_compute_extension = nova.api.openstack.compute.contrib.extended_server_attributes/g' /etc/nova/nova.conf
 
+crudini --set /etc/nova/nova.conf DEFAULT novncproxy_base_url http://${PRIMARY_PUBIP}:6080/vnc_auto.html
+
 openstack-service restart
 
 #
@@ -75,6 +79,8 @@ s/^\(osapi_compute_extension.*\)/\1\nosapi_compute_extension = nova.api.openstac
 EOF
 xdcp nova /tmp/sed.script /tmp/
 xdsh nova sed -i -f /tmp/sed.script /etc/nova/nova.conf
+
+xdsh nova crudini --set /etc/nova/nova.conf DEFAULT novncproxy_base_url http://${PRIMARY_PUBIP}:6080/vnc_auto.html
 
 xdsh nova openstack-service restart
 #
