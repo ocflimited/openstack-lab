@@ -2,6 +2,8 @@
 
 # Tested and confirmed on CentOS 7 x86_64
 
+yum -y install mariadb-galera-server
+
 MYSQL_PWD="password"
 
 systemctl start mariadb
