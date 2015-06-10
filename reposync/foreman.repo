@@ -1,5 +1,6 @@
 [foreman-6]
 name=Foreman for el 6
+#baseurl=http://yum.theforeman.org/releases/latest/el6/x86_64/
 baseurl=http://yum.theforeman.org/releases/1.5/el6/x86_64/
 enabled=1
 gpgcheck=0

@@ -1,11 +1,14 @@
 #INCLUDE:/opt/xcat/share/xcat/install/rh/compute.rhel7.pkglist#
+fence-agents-all
 gcc
 gd
 gd-devel
 glibc
 glibc.i686
 glibc-common
+haproxy
 httpd
+keepalived
 kernel-devel
 memcached
 mod_ssl
@@ -29,3 +32,9 @@ yum-utils
 -*-firmware
 -wpa_supplicant
 -wireless-tools
+# needed for SST for percona xtrabackup
+socat
+# required for IB
+libnl
+libxml2-python
+bc

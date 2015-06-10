@@ -1,0 +1,65 @@
+## PackStack/Puppet
+rdo-openstack-kilo/puppet
+rdo-openstack-kilo/openstack-packstack
+rdo-openstack-kilo/openstack-puppet-modules
+
+## Pre-reqs
+rdo-openstack-kilo/mariadb-galera-server
+rdo-openstack-kilo/rabbitmq-server
+
+## OpenStack Deps
+rdo-openstack-kilo/openstack-utils
+rdo-openstack-kilo/openstack-selinux
+
+## Nova
+rdo-openstack-kilo/openstack-nova
+rdo-openstack-kilo/openstack-nova-novncproxy
+rdo-openstack-kilo/openstack-nova-console
+
+## Neutron
+rdo-openstack-kilo/openstack-neutron
+rdo-openstack-kilo/openstack-neutron-ml2
+rdo-openstack-kilo/openstack-neutron-openvswitch
+
+## Glance
+rdo-openstack-kilo/openstack-glance
+
+## KeyStone
+rdo-openstack-kilo/openstack-keystone
+
+## Swift
+rdo-openstack-kilo/openstack-swift
+rdo-openstack-kilo/openstack-swift-proxy
+rdo-openstack-kilo/openstack-swift-object
+rdo-openstack-kilo/openstack-swift-container
+rdo-openstack-kilo/openstack-swift-account
+
+## Dashboard
+rdo-openstack-kilo/openstack-dashboard
+
+## Telemetry
+rdo-openstack-kilo/mongodb-server
+rdo-openstack-kilo/openstack-ceilometer-*
+rdo-openstack-kilo/python-ceilometer
+rdo-openstack-kilo/python-ceilometerclient
+
+## Cinder
+rdo-openstack-kilo/openstack-cinder
+
+## Heat
+rdo-openstack-kilo/openstack-heat-api
+rdo-openstack-kilo/openstack-heat-api-cfn
+rdo-openstack-kilo/openstack-heat-engine
+
+## Nagios
+rdo-openstack-kilo/nagios
+rdo-openstack-kilo/nagios-devel
+rdo-openstack-kilo/nagios-plugins-nrpe
+rdo-openstack-kilo/nagios-plugins-ping
+rdo-openstack-kilo/nrpe
+
+## Misc
+misc-deps/percona-xtrabackup
+epel/salt-minion
+
+extras/python-werkzeug

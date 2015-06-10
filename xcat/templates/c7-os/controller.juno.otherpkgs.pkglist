@@ -1,6 +1,5 @@
 ## PackStack/Puppet
 epel/puppet
-#puppet/puppet
 rdo-openstack-juno/openstack-packstack
 rdo-openstack-juno/openstack-puppet-modules
 epel/erlang
@@ -52,11 +51,7 @@ rdo-openstack-juno/openstack-cinder
 ## Heat
 rdo-openstack-juno/openstack-heat-api
 rdo-openstack-juno/openstack-heat-api-cfn
-
-## Ironic
-rdo-openstack-juno/openstack-ironic-api
-rdo-openstack-juno/openstack-ironic-conductor
-rdo-openstack-juno/python-ironicclient
+rdo-openstack-juno/openstack-heat-engine
 
 ## Nagios
 epel/nagios
@@ -68,3 +63,6 @@ epel/nrpe
 ## Misc
 epel/scsi-target-utils
 extras/python-itsdangerous
+
+misc-deps/percona-xtrabackup
+epel/salt-minion

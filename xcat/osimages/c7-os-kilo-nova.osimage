@@ -1,0 +1,19 @@
+# <xCAT data object stanza file>
+
+c7-os-kilo-nova:
+    objtype=osimage
+    groups=all
+    imagetype=linux
+    osarch=x86_64
+    osname=Linux
+    osvers=centos7.1
+    otherpkgdir=/install/post/otherpkgs/el7
+    otherpkglist=/install/templates/c7-os/nova.kilo.otherpkgs.pkglist
+    partitionfile=/install/templates/c7-os/nova.partfile
+    pkgdir=/install/centos7.1/x86_64,/install/centos7.1/updates/x86_64
+    pkglist=/install/templates/c7-os/nova.pkglist
+    postscripts=confignics -s,confignics
+    profile=nova
+    provmethod=install
+    synclists=/install/templates/c7-os/nova.synclist
+    template=/install/templates/c7-os/common.tmpl

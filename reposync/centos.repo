@@ -16,6 +16,15 @@ baseurl=http://mirror.centos.org/centos/7/updates/x86_64
 enabled=1
 gpgcheck=0
 
+[updates-7.0]
+name=CentOS Updates 7.0
+#baseurl=http://mirror.nsc.liu.se/centos-store/7.0.1406/updates/x86_64
+#baseurl=http://bay.uchicago.edu/centos-vault/7.0.1406/updates/x86_64
+#baseurl=http://mirror.symnds.com/distributions/CentOS-vault/7.0.1406/updates/x86_64/Packages
+baseurl=http://archive.kernel.org/centos/7.0.1406/updates/x86_64
+enabled=1
+gpgcheck=0
+
 [updates-6]
 name=CentOS Updates 6
 baseurl=http://mirror.centos.org/centos/6/updates/x86_64
@@ -27,3 +36,4 @@ name=CentOS SCL 6
 baseurl=http://dev.centos.org/centos/6/SCL/x86_64/
 enabled=1
 gpgcheck=0
+

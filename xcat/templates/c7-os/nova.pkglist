@@ -21,6 +21,11 @@ xauth
 xorg-x11-utils
 yum-plugin-priorities
 yum-utils
+tcl
+libxml2-python
+bc
+tk
 -*-firmware
 -wpa_supplicant
 -wireless-tools
+

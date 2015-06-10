@@ -1,5 +1,0 @@
-[rdo-beta]
-name=rdo-beta
-baseurl=http://copr-be.cloud.fedoraproject.org/results/jruzicka/rdo-juno-epel-7/epel-7-x86_64/
-enabled=1
-gpgcheck=0

@@ -23,3 +23,5 @@ epel/nrpe
 ## Misc
 epel/scsi-target-utils
 extras/python-greenlet
+
+epel/salt-minion

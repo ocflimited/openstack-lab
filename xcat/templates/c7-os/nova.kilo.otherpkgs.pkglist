@@ -1,0 +1,25 @@
+## PackStack/Puppet
+rdo-openstack-kilo/puppet
+
+## OpenStack Deps
+rdo-openstack-kilo/openstack-utils
+rdo-openstack-kilo/openstack-selinux
+
+## Nova
+rdo-openstack-kilo/openstack-nova-compute
+
+## Neutron
+rdo-openstack-kilo/openstack-neutron
+rdo-openstack-kilo/openstack-neutron-openvswitch
+rdo-openstack-kilo/openstack-neutron-ml2
+
+## Telemetry
+rdo-openstack-kilo/openstack-ceilometer-compute
+
+## Nagios
+rdo-openstack-kilo/nagios-plugins*
+rdo-openstack-kilo/nrpe
+
+## Misc
+epel/salt-minion
+extras/python-werkzeug
